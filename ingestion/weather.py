@@ -1,4 +1,8 @@
+from datetime import datetime, timezone
+
 import requests
+
+from db import get_connection
 
 BASE_URL = "https://api.open-meteo.com/v1/forecast"
 LATITUDE = 44.43
@@ -40,11 +44,44 @@ def to_rows(data):
     return tuples
 
 
+INSERT_SQL = """
+    INSERT INTO raw.weather_hourly (
+        observed_at,
+        temperature_2m,
+        relative_humidity_2m,
+        wind_speed_10m,
+        precipitation
+    )
+    VALUES (%s, %s, %s, %s, %s)
+"""
+
+
+def to_rows(data):
+    """Convert the hourly section from columns to rows (a list of tuples)."""
+    hourly = data["hourly"]
+    timestamps = [
+        datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
+        for t in hourly["time"]
+    ]
+    return list(zip(
+        timestamps,
+        hourly["temperature_2m"],
+        hourly["relative_humidity_2m"],
+        hourly["wind_speed_10m"],
+        hourly["precipitation"],
+    ))
+
+
+def load_rows(rows):
+    """Insert the rows into raw.weather_hourly."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.executemany(INSERT_SQL, rows)
+
+
+
 if __name__ == "__main__":
     data = fetch_weather()
     rows = to_rows(data)
-
-    print(f"Number of rows: {len(rows)}")
-    print("First 3 rows:")
-    for row in rows[:3]:
-        print(row)
+    load_rows(rows)
+    print(f"Inserted {len(rows)} rows")
