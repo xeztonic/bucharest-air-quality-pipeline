@@ -17,7 +17,7 @@ def fetch_weather():
         "latitude": LATITUDE,
         "longitude": LONGITUDE,
         "hourly": ",".join(HOURLY_VARIABLES),
-        "timezone": "Europe/Bucharest",
+        "timezone": "UTC",
         "past_days": 1,
         "forecast_days": 1
     }
