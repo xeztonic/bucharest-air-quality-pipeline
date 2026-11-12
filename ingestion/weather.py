@@ -53,6 +53,12 @@ INSERT_SQL = """
         precipitation
     )
     VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (observed_at) DO UPDATE SET
+        temperature_2m = EXCLUDED.temperature_2m,
+        relative_humidity_2m = EXCLUDED.relative_humidity_2m,
+        wind_speed_10m = EXCLUDED.wind_speed_10m,
+        precipitation = EXCLUDED.precipitation,
+        ingested_at = now()
 """
 
 
