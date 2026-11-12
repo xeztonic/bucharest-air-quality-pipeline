@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 
 import requests
+import time 
+from datetime import datetime, timezone
 
 from db import get_connection
 
@@ -14,6 +16,8 @@ HOURLY_VARIABLES = [
     "precipitation",
 ]
 
+MAX_RETRIES = 3
+
 
 def fetch_weather():
     """Fetch weather data from the Open-Meteo API."""
@@ -25,10 +29,17 @@ def fetch_weather():
         "past_days": 1,
         "forecast_days": 1
     }
-    response = requests.get(BASE_URL, params=params, timeout=10)
-    response.raise_for_status()
-
-    return response.json()
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = requests.get(BASE_URL, params=params, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            if attempt == MAX_RETRIES:
+                raise
+            wait = 2 ** attempt
+            print(f"Attempt {attempt} failed ({e}), retrying in {wait}s")
+            time.sleep(wait)
 
 
 def to_rows(data):
