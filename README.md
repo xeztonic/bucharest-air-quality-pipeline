@@ -74,8 +74,8 @@ docker compose up -d
 
 ## Roadmap
 
-- [ ] **Setup:** PostgreSQL in Docker, Python environment, API keys in `.env`
-- [ ] **Weather ingestion:** daily and historical data from Open-Meteo
+- [x] **Setup:** PostgreSQL in Docker, Python environment, API keys in `.env`
+- [x] **Weather ingestion:** daily and historical data from Open-Meteo
 - [ ] **Air-quality ingestion:** Bucharest stations from OpenAQ, with incremental loads and no duplicates
 - [ ] **dbt models:** staging and marts, with data tests and generated docs
 - [ ] **Orchestration:** daily Airflow DAG; the whole project starts with `docker compose up`
